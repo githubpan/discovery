@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Webview Example</title>
+
+<script type="text/javascript">
+// H5 plus事件处理
+function plusReady(){
+}
+if(window.plus){
+plusReady();
+}else{
+document.addEventListener("plusready",plusReady,false);
+}
+var nw=null;
+// 监听Webview窗口事件
+function eventTest() {
+if(nw){return;}
+var w=plus.nativeUI.showWaiting()
+// 打开新窗口
+nw=plus.webview.create( "http://weibo.com/dhnetwork" );
+nw.addEventListener( "loaded", function(){
+console.log( "New Window loaded!" );
+nw.show(); // 显示窗口
+w.close();
+w=null;
+}, false );
+}
+</script>
+</head>
+<body>
+添加事件监听器<br/>
+<button onclick="eventTest()">Event Listener</button>
+</body>
+</html>

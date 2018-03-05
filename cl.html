@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<title>草榴社区</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1,maximum-scale=1,user-scalable=no">
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black">
+
+		<link rel="stylesheet" href="css/mui.min.css">
+
+		<style>
+			html,
+			body {
+				background-color: black !important;
+			}
+			.mui-bar .mui-pull-left .mui-icon {
+				padding-right: 5px;
+				font-size: 28px;
+			}
+			.mui-bar .mui-btn {
+				font-weight: normal;
+				font-size: 17px;
+			}
+			.mui-bar .mui-btn-link {
+				top: 1px;
+			}
+		</style>
+	</head>
+
+	<body>
+
+		<header id="header" class="mui-bar mui-bar-nav" style="margin-top:22px;height: 66px;background-color: #63B8FF;">
+			<!--<a class="mui-icon-bars mui-icon mui-icon-left-nav mui-pull-left"></a>-->
+			<a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left"></a>
+			<h1 class="mui-title" id="title">科学-探索之草榴社区</h1>
+			<a class="mui-icon mui-icon-reload mui-pull-right"></a>
+		</header>
+
+		<nav class="mui-bar mui-bar-tab">
+			<a id="defaultTab" class="mui-tab-item mui-active" href="http://jinersi.tk/mobile.php?ismobile=yes">
+				<span class="mui-icon mui-icon-home"></span>
+				<span class="mui-tab-label">草榴社区</span>
+			</a>
+			<a class="mui-tab-item" href="fuliba.html">
+				<!--<span class="mui-badge">9</span>-->
+				<span class="mui-icon mui-icon-email"></span>
+				<span class="mui-tab-label">福利吧</span>
+			</a>
+			<a class="mui-tab-item" href="v2ex.html">
+				<span class="mui-icon mui-icon-contact"></span>
+				<span class="mui-tab-label">V2EX</span>
+			</a>
+			<a class="mui-tab-item" href="http://www.google.cn/">
+				<span class="mui-icon mui-icon-gear"></span>
+				<span class="mui-tab-label">谷歌搜索</span>
+			</a>
+		</nav>
+		<div class="mui-content">
+		</div>
+	<script src="js/mui.min.js"></script>
+	<script src="js/zepto.js"></script>
+
+	<script type="text/javascript" charset="utf-8">
+			mui.init();
+			var subpages = ['http://jinersi.tk/mobile.php?ismobile=yes', 'fuliba.html', 'v2ex.html', 'http://www.google.cn/'];
+			var subpage_style = {
+				top: '67px',
+				bottom: '51px'
+			};
+
+			var aniShow = {};
+			mui.plusReady(function () {
+
+				var self = plus.webview.currentWebview();
+				for (var i = 0; i < 4; i++) {
+					var temp = {};
+					var sub = plus.webview.create(subpages[i], subpages[i], subpage_style);
+					if (i > 0) {
+						sub.hide();
+					}else{
+						temp[subpages[i]] = "true";
+						mui.extend(aniShow,temp);
+					}
+					self.append(sub);
+				}
+				//当前激活选项
+			var activeTab = subpages[0];
+			var title = document.getElementById("title");
+			 //选项卡点击事件
+			mui('.mui-bar-tab').on('tap', 'a', function(e) {
+				var targetTab = this.getAttribute('href');
+				if (targetTab == activeTab) {
+					return;
+				}
+				//更换标题
+				console.log(this.querySelector('.mui-tab-label').innerText);
+				title.innerHTML = this.querySelector('.mui-tab-label').innerText;
+				//显示目标选项卡
+				//若为iOS平台或非首次显示，则直接显示
+				if(mui.os.ios||aniShow[targetTab]){
+					plus.webview.show(targetTab);
+				}else{
+					//否则，使用fade-in动画，且保存变量
+					var temp = {};
+					temp[targetTab] = "true";
+					mui.extend(aniShow,temp);
+					plus.webview.show(targetTab,"fade-in",300);
+				}
+				//隐藏当前;
+				plus.webview.hide(activeTab);
+				//更改当前活跃的选项卡
+				activeTab = targetTab;
+
+
+
+			});
+			 //自定义事件，模拟点击“首页选项卡”
+			document.addEventListener('gohome', function() {
+				var defaultTab = document.getElementById("defaultTab");
+				//模拟首页点击
+				mui.trigger(defaultTab, 'tap');
+				//切换选项卡高亮
+				var current = document.querySelector(".mui-bar-tab>.mui-tab-item.mui-active");
+				if (defaultTab !== current) {
+					current.classList.remove('mui-active');
+					defaultTab.classList.add('mui-active');
+				}
+			});
+			mui(".mui-bar-nav").on('tap','.mui-icon-reload',function(){
+				var t = plus.webview.getWebviewById(activeTab);
+				console.log(t.getURL());
+				t.reload	(true);
+	            	t.evalJS('history.go(0)');
+
+	               // plus.webview.getWebviewById(subpages[0]).reload(true);
+				});
+
+				// 然后进行重写
+	            mui.back = function() {
+	                /**
+	                 * 监听子窗口对象是否可后退
+	                 * http://www.html5plus.org/doc/zh_cn/webview.html#plus.webview.WebviewObject.canBack
+	                 */
+	                var WV = plus.webview.getWebviewById(subpages[0]);
+	                WV.canBack(function(event) {
+	                    var canBack = event.canBack;
+	                    if(canBack) {
+
+	                        WV.back();
+
+	                    } else {
+	                    	WV.opener().show();
+							self.close();
+
+	                    }
+	                });
+	            };
+			});
+
+
+
+
+
+		</script>
+	</body>
+</html>
